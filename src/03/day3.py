@@ -4,7 +4,7 @@ from collections import namedtuple
 LineResult = namedtuple('LineResult', ['symbols', 'numbers'])
 
 # Returns "gears" only if mode is True, all symbols otherwise
-def parse_line(line: str, mode: bool) -> list[LineResult]:
+def parse_line(line: str, mode: bool) -> LineResult:
     symbols: list[int] = []
     numbers: dict[int,int] = {}
     current_number = 0
@@ -73,10 +73,11 @@ def part2(filename: str) -> int:
     current = LineResult([], {})
     after = LineResult([], {})
     with open(filename, 'rt') as f:
+        adjacencies = []
         for line in f:
             after = parse_line(line.strip(), True)
             for index in current.symbols:
-                adjacencies = []
+                adjacencies.clear()
                 adjacencies.extend(value for key, value in before.numbers.items() if key - 1 <= index <= key + digits(value))
                 adjacencies.extend(value for key, value in current.numbers.items() if key - 1 <= index <= key + digits(value))
                 adjacencies.extend(value for key, value in after.numbers.items() if key - 1 <= index <= key + digits(value))
@@ -85,7 +86,7 @@ def part2(filename: str) -> int:
             before = current
             current = after
         for index in current.symbols:
-            adjacencies = []
+            adjacencies.clear()
             adjacencies.extend(value for key, value in before.numbers.items() if key - 1 <= index <= key + digits(value))
             adjacencies.extend(value for key, value in current.numbers.items() if key - 1 <= index <= key + digits(value))
             if len(adjacencies) == 2:
