@@ -1,6 +1,6 @@
-def part1():
+def part1(filename: str) -> int:
     s = 0
-    with open('day2_input.txt', 'rt') as f:
+    with open(filename, 'rt') as f:
         for line in f:
             game_no, games = line.split(':')
             game_no = int(game_no[5:])
@@ -12,11 +12,11 @@ def part1():
                     cubes[colour.strip()] = max(cubes[colour.strip()], num)
             if cubes['red'] <= 12 and cubes['green'] <= 13 and cubes['blue'] <= 14:
                 s += game_no
-    print(s)
+    return s
 
-def part2():
+def part2(filename: str) -> int:
     s = 0
-    with open('day2_input.txt', 'rt') as f:
+    with open(filename, 'rt') as f:
         for line in f:
             game_no, games = line.split(':')
             game_no = int(game_no[5:])
@@ -27,8 +27,8 @@ def part2():
                     num = int(num)
                     cubes[colour.strip()] = max(cubes[colour.strip()], num)
             s += cubes['blue'] * cubes['red'] * cubes['green']
-    print(s)
+    return s
 
 if __name__ == '__main__':
-    part1()
-    part2()
+    print(part1('day1_input.txt'))
+    print(part2('day1_input.txt'))

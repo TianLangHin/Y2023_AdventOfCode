@@ -1,16 +1,16 @@
 import re
 
-def part_one():
-    with open('day1_input.txt', 'rt') as f:
+def part1(filename: str) -> int:
+    with open(filename, 'rt') as f:
         lines = f.readlines()
     s = 0
     for line in lines:
         l = [c for c in line if c in '0123456789']
         s += int(l[0] + l[-1])
-    print(s)
+    return s
 
-def part_two():
-    with open('day1_input.txt', 'rt') as f:
+def part2(filename: str) -> int:
+    with open(filename, 'rt') as f:
         lines = f.readlines()
     s = 0
     conv = {
@@ -29,7 +29,8 @@ def part_two():
         digits = re.findall('(?=(one|two|three|four|five|six|seven|eight|nine|\d))', line)
         x = conv[digits[0]]*10 + conv[digits[-1]]
         s += x
-    print(s)
+    return s
 
-#part_one()
-part_two()
+if __name__ == '__main__':
+    print(part1('day1_input.txt'))
+    print(part2('day1_input.txt'))
