@@ -24,6 +24,8 @@ def part2(filename: str) -> int:
             for i in range(1, have+1):
                 bonuses[card_no + i] = bonuses.get(card_no + i, 0) + bonuses.get(card_no, 0) + 1
             s += bonuses.get(card_no, 0) + 1
+            if card_no in bonuses:
+                bonuses.pop(card_no)
         return s
 
 if __name__ == '__main__':
