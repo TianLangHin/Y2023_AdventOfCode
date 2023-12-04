@@ -30,5 +30,5 @@ def part2(filename: str) -> int:
     return s
 
 if __name__ == '__main__':
-    print(part1('day1_input.txt'))
-    print(part2('day1_input.txt'))
+    print(part1('day2_input.txt'))
+    print(part2('day2_input.txt'))
