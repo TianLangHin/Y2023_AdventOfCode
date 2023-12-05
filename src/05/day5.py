@@ -1,5 +1,3 @@
-from functools import reduce
-
 def transform(source: list[int], *, mapping: list[tuple[int,int,int]]) -> None:
     converted = [False] * len(source)
     for end, start, length in mapping:
