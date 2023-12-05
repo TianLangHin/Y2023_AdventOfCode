@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use std::fs;
 
 pub struct LineResult {
-    pub symbols: Vec<u32>,
-    pub numbers: HashMap<u32, u32>
+    pub symbols: Vec<i32>,
+    pub numbers: HashMap<i32, i32>
 }
 
 impl LineResult {
@@ -17,51 +17,53 @@ impl LineResult {
 }
 
 fn parse_line(line: &str, mode: bool) -> LineResult {
-    let mut symbols: Vec<u32> = Vec::new();
-    let mut numbers: HashMap<u32, u32> = HashMap::new();
+    let mut symbols: Vec<i32> = Vec::new();
+    let mut numbers: HashMap<i32, i32> = HashMap::new();
 
-    let mut current_number: u32 = 0;
-    let mut current_index: Option<u32> = None;
+    let mut current_number: i32 = 0;
+    let mut current_index: Option<i32> = None;
 
-    let mut index: u32 = 0;
+    let mut index: i32 = 0;
+
     for character in line.chars() {
         match character {
             '.' => {
-                if current_number != 0 {
-                    numbers.insert(
-                        current_index.expect("problem in dot"),
-                        current_number
-                    );
-                    current_number = 0;
-                    current_index = None;
+                match current_index {
+                    Some(idx) => {
+                        numbers.insert(idx, current_number);
+                        current_number = 0;
+                        current_index = None;
+                    },
+                    None => {}
                 }
             },
             c if c.is_numeric() => {
-                if current_number == 0 {
-                    current_index = Some(index);
+                match current_index {
+                    Some(_) => {},
+                    None => {current_index = Some(index)}
                 }
                 current_number = current_number * 10 +
-                                 c.to_digit(10).expect("shouldn't happen");
+                                 c.to_digit(10).unwrap() as i32;
             },
             '*' if mode => {
-                if current_number != 0 {
-                    numbers.insert(
-                        current_index.expect("problem in asterisk"),
-                        current_number
-                    );
-                    current_number = 0;
-                    current_index = None;
+                match current_index {
+                    Some(index) => {
+                        numbers.insert(index, current_number);
+                        current_number = 0;
+                        current_index = None;
+                    },
+                    None => {}
                 }
                 symbols.push(index);
             },
             _ => {
-                if current_number != 0 {
-                    numbers.insert(
-                        current_index.expect("problem in wildcard"),
-                        current_number
-                    );
-                    current_number = 0;
-                    current_index = None;
+                match current_index {
+                    Some(index) => {
+                        numbers.insert(index, current_number);
+                        current_number = 0;
+                        current_index = None;
+                    },
+                    None => {}
                 }
                 if !mode {
                     symbols.push(index);
@@ -71,7 +73,7 @@ fn parse_line(line: &str, mode: bool) -> LineResult {
         index += 1;
     }
     if current_number != 0 {
-        numbers.insert(current_index.expect("Problem at the end"), current_number);
+        numbers.insert(current_index.unwrap(), current_number);
     }
     return LineResult {
         symbols: symbols,
@@ -79,10 +81,10 @@ fn parse_line(line: &str, mode: bool) -> LineResult {
     };
 }
 
-fn part1(filename: &str) -> u32 {
-    let digits = |s: u32| {
+fn part1(filename: &str) -> i32 {
+    let digits = |s| {
         let mut x = s;
-        let mut i: u32 = 0;
+        let mut i: i32 = 0;
         while x > 0 {
             x /= 10;
             i += 1;
@@ -90,13 +92,13 @@ fn part1(filename: &str) -> u32 {
         return i;
     };
 
-    let mut running_sum: u32 = 0;
+    let mut running_sum: i32 = 0;
 
     let mut before = LineResult::new();
     let mut current = LineResult::new();
     let mut after;
 
-    let mut adjacencies: HashSet<u32> = HashSet::new();
+    let mut adjacencies: HashSet<i32> = HashSet::new();
 
     let lines = fs::read_to_string(filename).expect("File not found");
 
@@ -106,41 +108,21 @@ fn part1(filename: &str) -> u32 {
         adjacencies.clear();
 
         for (index, number) in &current.numbers {
-            if after.symbols.iter().any(
-                |&x| {
-                    if *index == 0 {
-                        return x <= *index + digits(*number)
-                    }
-                    return *index - 1 <= x && x <= *index + digits(*number)
-                }
-            ) {
+
+            let adjacent = |&x| {*index - 1 <= x && x <= *index + digits(*number)};
+
+            if after.symbols.iter().any(adjacent) {
                 adjacencies.insert(*index);
             }
-
-            if current.symbols.iter().any(
-                |&x| {
-                    if *index == 0 {
-                        return x <= *index + digits(*number)
-                    }
-                    return *index - 1 <= x && x <= *index + digits(*number)
-                }
-            ) {
+            if current.symbols.iter().any(adjacent) {
                 adjacencies.insert(*index);
             }
-
-            if before.symbols.iter().any(
-                |&x| {
-                    if *index == 0 {
-                        return x <= *index + digits(*number)
-                    }
-                    return *index - 1 <= x && x <= *index + digits(*number)
-                }
-            ) {
+            if before.symbols.iter().any(adjacent) {
                 adjacencies.insert(*index);
             }
         }
         for index in &adjacencies {
-            running_sum += current.numbers.get(&index).expect("what the hell");
+            running_sum += current.numbers.get(&index).unwrap();
         }
         before = current;
         current = after;
@@ -148,39 +130,27 @@ fn part1(filename: &str) -> u32 {
 
     adjacencies.clear();
     for (index, number) in &current.numbers {
-        if current.symbols.iter().any(
-            |&x| {
-                if *index == 0 {
-                    return x <= *index + digits(*number)
-                }
-                return *index - 1 <= x && x <= *index + digits(*number)
-            }
-        ) {
+
+        let adjacent = |&x| {*index - 1 <= x && x <= *index + digits(*number)};
+
+        if current.symbols.iter().any(adjacent) {
             adjacencies.insert(*index);
         }
-
-        if before.symbols.iter().any(
-            |&x| {
-                if *index == 0 {
-                    return x <= *index + digits(*number)
-                }
-                return *index - 1 <= x && x <= *index + digits(*number)
-            }
-        ) {
+        if before.symbols.iter().any(adjacent) {
             adjacencies.insert(*index);
         }
     }
     for index in &adjacencies {
-        running_sum += current.numbers.get(&index).expect("what the hell");
+        running_sum += current.numbers.get(&index).unwrap();
     }
 
     return running_sum;
 }
 
-fn part2(filename: &str) -> u32 {
-    let digits = |s: u32| {
+fn part2(filename: &str) -> i32 {
+    let digits = |s| {
         let mut x = s;
-        let mut i: u32 = 0;
+        let mut i: i32 = 0;
         while x > 0 {
             x /= 10;
             i += 1;
@@ -188,72 +158,31 @@ fn part2(filename: &str) -> u32 {
         return i;
     };
 
-    let mut running_sum: u32 = 0;
+    let mut running_sum: i32 = 0;
 
     let mut before = LineResult::new();
     let mut current = LineResult::new();
     let mut after;
 
-    let mut adjacencies: Vec<u32> = Vec::new();
+    let mut adjacencies: Vec<i32> = Vec::new();
 
     let lines = fs::read_to_string(filename).expect("File not found");
 
     for line in lines.split_whitespace().map(|x| x.trim()) {
+
         after = parse_line(&line, true);
+
         for index in &current.symbols {
+
+            let adjacent_value = |(&key, &value)| {
+                if key - 1 <= *index && *index <= key + digits(value) {Some(value)} else {None}
+            };
 
             adjacencies.clear();
 
-            adjacencies.extend(
-                before.numbers.iter().filter_map(
-                    |(&key, &value)| {
-                        if key == 0 {
-                            if *index <= key + digits(value) {
-                                return Some(value)
-                            }
-                            return None
-                        }
-                        if key - 1 <= *index && *index <= key + digits(value) {
-                            return Some(value)
-                        }
-                        return None
-                    }
-                )
-            );
-
-            adjacencies.extend(
-                current.numbers.iter().filter_map(
-                    |(&key, &value)| {
-                        if key == 0 {
-                            if *index <= key + digits(value) {
-                                return Some(value)
-                            }
-                            return None
-                        }
-                        if key - 1 <= *index && *index <= key + digits(value) {
-                            return Some(value)
-                        }
-                        return None
-                    }
-                )
-            );
-
-            adjacencies.extend(
-                after.numbers.iter().filter_map(
-                    |(&key, &value)| {
-                        if key == 0 {
-                            if *index <= key + digits(value) {
-                                return Some(value)
-                            }
-                            return None
-                        }
-                        if key - 1 <= *index && *index <= key + digits(value) {
-                            return Some(value)
-                        }
-                        return None
-                    }
-                )
-            );
+            adjacencies.extend(before.numbers.iter().filter_map(adjacent_value));
+            adjacencies.extend(current.numbers.iter().filter_map(adjacent_value));
+            adjacencies.extend(after.numbers.iter().filter_map(adjacent_value));
 
             if adjacencies.len() == 2 {
                 running_sum += adjacencies[0] * adjacencies[1];
@@ -264,41 +193,14 @@ fn part2(filename: &str) -> u32 {
     }
     for index in &current.symbols {
 
+        let adjacent_value = |(&key, &value)| {
+            if key - 1 <= *index && *index <= key + digits(value) {Some(value)} else {None}
+        };
+
         adjacencies.clear();
 
-        adjacencies.extend(
-            before.numbers.iter().filter_map(
-                |(&key, &value)| {
-                    if key == 0 {
-                        if *index <= key + digits(value) {
-                            return Some(value)
-                        }
-                        return None
-                    }
-                    if key - 1 <= *index && *index <= key + digits(value) {
-                        return Some(value)
-                    }
-                    return None
-                }
-            )
-        );
-
-        adjacencies.extend(
-            current.numbers.iter().filter_map(
-                |(&key, &value)| {
-                    if key == 0 {
-                        if *index <= key + digits(value) {
-                            return Some(value)
-                        }
-                        return None
-                    }
-                    if key - 1 <= *index && *index <= key + digits(value) {
-                        return Some(value)
-                    }
-                    return None
-                }
-            )
-        );
+        adjacencies.extend(before.numbers.iter().filter_map(adjacent_value));
+        adjacencies.extend(current.numbers.iter().filter_map(adjacent_value));
 
         if adjacencies.len() == 2 {
             running_sum += adjacencies[0] * adjacencies[1];
