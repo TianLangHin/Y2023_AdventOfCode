@@ -1,10 +1,8 @@
 from collections import namedtuple
 
-# start: int, end: int
-# `start` and `end` are inclusive.
-Range = namedtuple('Range', ['start', 'end'])
-# start_range: Range, offset: int
-Mapping = namedtuple('Mapping', ['start_range', 'offset'])
+############
+# Part One #
+############
 
 def transform(source: list[int], *, mapping: list[tuple[int,int,int]]) -> None:
     converted = [False] * len(source)
@@ -47,8 +45,17 @@ def part1(filename: str) -> int:
 
     return min(seeds)
 
+############
+# Part Two #
+############
 
-def two_fors(a: list[Range], mapper: list[Mapping]) -> list[Range]:
+# start: int, end: int
+# `start` and `end` are inclusive.
+Range = namedtuple('Range', ['start', 'end'])
+# start_range: Range, offset: int
+Mapping = namedtuple('Mapping', ['start_range', 'offset'])
+
+def transform_ranges(a: list[Range], mapper: list[Mapping]) -> list[Range]:
     top_item = None
     i, j = 0, 0
     result_ranges: list[Range] = []
@@ -56,42 +63,34 @@ def two_fors(a: list[Range], mapper: list[Mapping]) -> list[Range]:
         top_item = a[i] if top_item is None else top_item
         b, offset = mapper[j]
         if top_item.start < b.start:
-            # a[0] < b[0] <= b[1] < a[1]
             if top_item.end > b.end:
                 result_ranges.append(Range(top_item.start, b.start - 1))
                 result_ranges.append(Range(b.start + offset, b.end + offset))
                 top_item = Range(b.end + 1, top_item.end)
-                j += 1 # b is consumed
-            # a[0] < b[0] <= a[1] <= b[1]
+                j += 1
             elif b.start <= top_item.end <= b.end:
                 result_ranges.append(Range(top_item.start, b.start - 1))
                 result_ranges.append(Range(b.start + offset, top_item.end + offset))
                 top_item = None
-                i += 1 # a is consumed
-            # a[0] <= a[1] < b[0] <= b[1]
+                i += 1
             elif top_item.end < b.start:
                 result_ranges.append(Range(top_item.start, top_item.end))
                 top_item = None
-                i += 1 # a is consumed
+                i += 1
             else:
                 raise Exception("shouldn't happen 02 {} {}".format(top_item, b))
         elif top_item.start >= b.start:
-            # b[0] <= b[1] < a[0] <= a[1]
             if top_item.start > b.end:
-                # No overlap at all
-                # We do not record out of ranges, since it might overlap later.
                 top_item = None
-                j += 1 # b is consumed
-            # b[0] <= a[0] <= b[1] < a[1]
+                j += 1
             elif top_item.end > b.end:
                 result_ranges.append(Range(top_item.start + offset, b.end + offset))
                 top_item = Range(b.end + 1, top_item.end)
-                j += 1 # b is consumed
-            # b[0] <= a[0] <= a[1] <= b[1]
+                j += 1
             elif top_item.end <= b.end:
                 result_ranges.append(Range(top_item.start + offset, top_item.end + offset))
                 top_item = None
-                i += 1 # a is consumed
+                i += 1
             else:
                 raise Exception("shouldn't happen 03 {} {}".format(top_item, b))
         else:
@@ -101,7 +100,6 @@ def two_fors(a: list[Range], mapper: list[Mapping]) -> list[Range]:
         i += 1
     result_ranges.sort(key=lambda r: r.start)
     return result_ranges
-
 
 def part2(filename: str) -> int:
     seeds: list[Range] = []
@@ -140,9 +138,8 @@ def part2(filename: str) -> int:
 
     seeds.sort(key=lambda r: r.start)
     for t in transformations:
-        seeds = two_fors(seeds, transformations[t])
+        seeds = transform_ranges(seeds, transformations[t])
     return seeds[0].start
-
 
 if __name__ == '__main__':
     print(part1('day5_input.txt'))
