@@ -23,7 +23,10 @@ fn transform(mut source: Vec<i64>, mapping: &Vec<Row>) -> Vec<i64> {
     }
     for map in mapping {
         for i in 0..source.len() {
-            if (!converted[i]) && map.start <= source[i] && source[i] < map.start + map.length {
+            if !converted[i]
+                && map.start <= source[i]
+                && source[i] < map.start + map.length
+            {
                 source[i] += map.end - map.start;
                 converted[i] = true;
             }
@@ -50,19 +53,27 @@ fn part1(filename: &str) -> i64 {
         match file_line {
             "" => {},
             line if line.starts_with("seeds:") => {
-                seeds.extend(line[7..].split_whitespace().map(|x| x.parse::<i64>().unwrap()));
+                seeds.extend(
+                    line[7..]
+                    .split_whitespace()
+                    .map(|x| x.parse::<i64>().unwrap())
+                );
             },
             line if line.ends_with("map:") => {
                 i += 1;
             },
             line => {
-                let splitted_line: Vec<_> = line.split_whitespace()
-                                                .map(|x| x.parse::<i64>().unwrap()).collect();
+                let splitted_line: Vec<_> = line
+                    .split_whitespace()
+                    .map(|x| x.parse::<i64>().unwrap())
+                    .collect();
                 transformations[i].push(
                     Row {
                         end: splitted_line[0],
                         start: splitted_line[1], 
-                        length: splitted_line[2]});
+                        length: splitted_line[2]
+                    }
+                );
             }
         }
     }
@@ -84,44 +95,39 @@ fn transform_ranges(seeds: &Vec<Range>, mappers: &Vec<Mapping>) -> Vec<Range> {
 
     while let Some((seed, map)) = current_seed.zip(current_map) {
         match top_item {
-            None => {top_item = Some(Range {start: seed.start, end: seed.end})}
+            None => {top_item = Some(Range { start: seed.start, end: seed.end })}
             _ => {}
         }
-        let b = Range {start: map.start_range.start, end: map.start_range.end};
+        let b = Range { start: map.start_range.start, end: map.start_range.end };
         let offset = map.offset;
         match top_item {
             Some(ref t) => {
                 if t.start < b.start {
                     if b.end < t.end {
-                        result_ranges.push(Range {start: t.start, end: b.start - 1});
-                        result_ranges.push(Range {start: b.start + offset, end: b.end + offset});
-                        top_item = Some(Range {start: b.end + 1, end: t.end});
+                        result_ranges.push(Range { start: t.start, end: b.start - 1 });
+                        result_ranges.push(Range { start: b.start + offset, end: b.end + offset });
+                        top_item = Some(Range { start: b.end + 1, end: t.end });
                         current_map = mappers_iter.next();
-                    }
-                    else if b.start <= t.end && t.end <= b.end {
-                        result_ranges.push(Range {start: t.start, end: b.start - 1});
-                        result_ranges.push(Range {start: b.start + offset, end: t.end + offset});
+                    } else if b.start <= t.end && t.end <= b.end {
+                        result_ranges.push(Range { start: t.start, end: b.start - 1 });
+                        result_ranges.push(Range { start: b.start + offset, end: t.end + offset });
+                        top_item = None;
+                        current_seed = seeds_iter.next();
+                    } else if t.end < b.start {
+                        result_ranges.push(Range { start: t.start, end: t.end });
                         top_item = None;
                         current_seed = seeds_iter.next();
                     }
-                    else if t.end < b.start {
-                        result_ranges.push(Range {start: t.start, end: t.end});
-                        top_item = None;
-                        current_seed = seeds_iter.next();
-                    }
-                }
-                else if b.start <= t.start {
+                } else if b.start <= t.start {
                     if b.end < t.start {
                         top_item = None;
                         current_map = mappers_iter.next();
-                    }
-                    else if b.end < t.end {
-                        result_ranges.push(Range {start: t.start + offset, end: b.end + offset});
-                        top_item = Some(Range {start: b.end + 1, end: t.end});
+                    } else if b.end < t.end {
+                        result_ranges.push(Range { start: t.start + offset, end: b.end + offset });
+                        top_item = Some(Range { start: b.end + 1, end: t.end });
                         current_map = mappers_iter.next();
-                    }
-                    else if t.end <= b.end {
-                        result_ranges.push(Range {start: t.start + offset, end: t.end + offset});
+                    } else if t.end <= b.end {
+                        result_ranges.push(Range { start: t.start + offset, end: t.end + offset });
                         top_item = None;
                         current_seed = seeds_iter.next();
                     }
@@ -131,7 +137,7 @@ fn transform_ranges(seeds: &Vec<Range>, mappers: &Vec<Mapping>) -> Vec<Range> {
         }
     }
     while let Some(seed) = current_seed {
-        result_ranges.push(Range {start: seed.start, end: seed.end});
+        result_ranges.push(Range { start: seed.start, end: seed.end });
         current_seed = seeds_iter.next();
     }
     result_ranges.sort_by(|r1, r2| r1.start.partial_cmp(&r2.start).unwrap());
@@ -156,28 +162,46 @@ fn part2(filename: &str) -> i64 {
         match file_line {
             "" => {},
             line if line.starts_with("seeds:") => {
-                let split: Vec<_> = line[7..].split_whitespace()
-                                              .map(|x| x.parse::<i64>().unwrap())
-                                              .collect();
+                let split: Vec<_> = line[7..]
+                    .split_whitespace()
+                    .map(|x| x.parse::<i64>().unwrap())
+                    .collect();
                 for i in 0..split.len() >> 1 {
-                    seeds.push(Range {start: split[i << 1], end: split[i << 1] + split[(i << 1) + 1] - 1});
+                    seeds.push(
+                        Range {
+                            start: split[i << 1],
+                            end: split[i << 1] + split[(i << 1) + 1] - 1
+                        }
+                    );
                 }
             },
             line if line.ends_with("map:") => {
                 i += 1;
             },
             line => {
-                let integers: Vec<_> = line.split_whitespace()
-                                                .map(|x| x.parse::<i64>().unwrap()).collect();
+                let integers: Vec<_> = line
+                    .split_whitespace()
+                    .map(|x| x.parse::<i64>().unwrap())
+                    .collect();
                 let end = integers[0];
                 let start = integers[1];
                 let length = integers[2];
                 transformations[i].push(
-                        Mapping {
-                            start_range: Range {start: start, end: start + length - 1},
-                            offset: end-start});
-                transformations[i].sort_by(
-                    |r1, r2| r1.start_range.start.partial_cmp(&r2.start_range.start).unwrap());
+                    Mapping {
+                        start_range: Range {
+                            start: start,
+                            end: start + length - 1
+                        },
+                        offset: end-start
+                    }
+                );
+                transformations[i].sort_by(|r1, r2|
+                    r1
+                    .start_range
+                    .start
+                    .partial_cmp(&r2.start_range.start)
+                    .unwrap()
+                );
             }
         }
     }
