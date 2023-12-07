@@ -140,7 +140,7 @@ fn transform_ranges(seeds: &Vec<Range>, mappers: &Vec<Mapping>) -> Vec<Range> {
         result_ranges.push(Range { start: seed.start, end: seed.end });
         current_seed = seeds_iter.next();
     }
-    result_ranges.sort_by(|r1, r2| r1.start.partial_cmp(&r2.start).unwrap());
+    result_ranges.sort_by(|r1, r2| r1.start.cmp(&r2.start));
     return result_ranges;
 }
 
@@ -199,13 +199,12 @@ fn part2(filename: &str) -> i64 {
                     r1
                     .start_range
                     .start
-                    .partial_cmp(&r2.start_range.start)
-                    .unwrap()
+                    .cmp(&r2.start_range.start)
                 );
             }
         }
     }
-    seeds.sort_by(|r1, r2| r1.start.partial_cmp(&r2.start).unwrap());
+    seeds.sort_by(|r1, r2| r1.start.cmp(&r2.start));
     for t in 1..8 {
         seeds = transform_ranges(&seeds, &transformations[t]);
     }
