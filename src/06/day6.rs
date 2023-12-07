@@ -18,12 +18,10 @@ fn part1(filename: &str) -> i64 {
         let h: f64 = (t as f64) / 2.0;
         let v: f64 = ((t*t - 4.0*d) as f64) / 4.0;
         if v > 0.0 {
-            let l = h - v.sqrt();
-            let u = h + v.sqrt();
-            let l: i64 = if l == l.round() {l.ceil() as i64 + 1} else {l.ceil() as i64};
-            let u: i64 = if u == u.round() {u.floor() as i64 - 1} else {u.floor() as i64};
+            let l = (h - v.sqrt()).floor() as i64;
+            let u = (h + v.sqrt()).ceil() as i64;
             if u >= l {
-                s *= u - l + 1;
+                s *= u - l - 1;
             }
         }
     }
@@ -47,12 +45,10 @@ fn part2(filename: &str) -> i64 {
     let h: f64 = (t as f64) / 2.0;
     let v: f64 = ((t*t - 4.0*d) as f64) / 4.0;
     if v > 0.0 {
-        let l = h - v.sqrt();
-        let u = h + v.sqrt();
-        let l: i64 = if l == l.round() {l.ceil() as i64 + 1} else {l.ceil() as i64};
-        let u: i64 = if u == u.round() {u.floor() as i64 - 1} else {u.floor() as i64};
+        let l = (h - v.sqrt()).floor() as i64;
+        let u = (h + v.sqrt()).ceil() as i64;
         if u >= l {
-            return u - l + 1;
+            return u - l - 1;
         }
     }
     return 0;
