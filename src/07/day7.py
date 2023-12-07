@@ -30,13 +30,13 @@ def make_type(card_counter: dict[str,int], part_two: bool) -> int:
         return 1
     return 0
 
-def part1(filename: str) -> int:
+def process_cards(filename: str, part_two: bool) -> int:
     hands: list[tuple[Hand,int]] = []
     card_map = {
         'A': 14,
         'K': 13,
         'Q': 12,
-        'J': 11,
+        'J': 1 if part_two else 11,
         'T': 10,
         '9': 9,
         '8': 8,
@@ -55,38 +55,15 @@ def part1(filename: str) -> int:
             for card in cards:
                 card_counter[card] = card_counter.get(card, 0) + 1
                 card_list.append(card_map[card])
-            hands.append((Hand(make_type(card_counter, False), tuple(card_list)), int(bid)))
+            hands.append((Hand(make_type(card_counter, part_two), tuple(card_list)), int(bid)))
     hands.sort(key=lambda x: x[0])
     return sum((i+1)*bid for i, (_, bid) in enumerate(hands))
 
+def part1(filename: str) -> int:
+    return process_cards(filename, False)
+
 def part2(filename: str) -> int:
-    hands: list[tuple[Hand,int]] = []
-    card_map = {
-        'A': 14,
-        'K': 13,
-        'Q': 12,
-        'T': 10,
-        '9': 9,
-        '8': 8,
-        '7': 7,
-        '6': 6,
-        '5': 5,
-        '4': 4,
-        '3': 3,
-        '2': 2,
-        'J': 1,
-    }
-    with open(filename, 'rt') as f:
-        for line in f:
-            cards, bid = line.split()
-            card_counter = {}
-            card_list = []
-            for card in cards:
-                card_counter[card] = card_counter.get(card, 0) + 1
-                card_list.append(card_map[card])
-            hands.append((Hand(make_type(card_counter, True), tuple(card_list)), int(bid)))
-    hands.sort(key=lambda x: x[0])
-    return sum((i+1)*bid for i, (_, bid) in enumerate(hands))
+    return process_cards(filename, True)
 
 if __name__ == '__main__':
     print(part1('day7_input.txt'))
