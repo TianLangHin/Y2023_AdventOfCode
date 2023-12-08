@@ -10,7 +10,7 @@ def execute_steps(start_node: Node, path: list[bool], *, nodes: dict[str, Node])
         node = nodes[node.left] if branch else nodes[node.right]
     return node
 
-def part1(filename: str) -> int:
+def parse_input(filename: str) -> (list[bool], dict[str, Node]):
     steps = []
     nodes: dict[str, Node] = {}
     with open(filename, 'rt') as f:
@@ -22,9 +22,14 @@ def part1(filename: str) -> int:
             elif line == '':
                 pass
             else:
-                cur, nxt = line.split(' = ')
-                l, r = nxt.strip('()').split(', ')
+                cur, l, r = (lambda x: (x[0], x[1][0], x[1][1]))(
+                    (lambda x: (x[0], x[1][1:-1].split(', ')))(
+                    line.split(' = ')))
                 nodes[cur] = Node(cur, l, r)
+    return steps, nodes
+
+def part1(filename: str) -> int:
+    steps, nodes = parse_input(filename)
     s = 0
     node = nodes['AAA']
     while node.name != 'ZZZ':
@@ -35,20 +40,7 @@ def part1(filename: str) -> int:
 # Assumes that all starting nodes are in a cycle that contains an endpoint,
 # and that the end state is reached after an integer multiple of strides given.
 def part2(filename: str) -> int:
-    steps = []
-    nodes: dict[str, Node] = {}
-    with open(filename, 'rt') as f:
-        for line in f:
-            line = line.strip()
-            if not steps:
-                # True is Left, False is Right
-                steps = [c == 'L' for c in line]
-            elif line == '':
-                pass
-            else:
-                cur, nxt = line.split(' = ')
-                l, r = nxt.strip('()').split(', ')
-                nodes[cur] = Node(cur, l, r)
+    steps, nodes = parse_input(filename)
 
     transforms: dict[str, str] = {}
     for node in nodes.keys():
