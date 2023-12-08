@@ -1,4 +1,5 @@
 from collections import namedtuple
+from functools import reduce
 
 # name: str, left: str, right: str
 Node = namedtuple('Node', ['name', 'left', 'right'])
@@ -31,8 +32,57 @@ def part1(filename: str) -> int:
         s += 1
     return s * len(steps)
 
+# Assumes that all starting nodes are in a cycle that contains an endpoint,
+# and that the end state is reached after an integer multiple of strides given.
 def part2(filename: str) -> int:
-    pass
+    steps = []
+    nodes: dict[str, Node] = {}
+    with open(filename, 'rt') as f:
+        for line in f:
+            line = line.strip()
+            if not steps:
+                # True is Left, False is Right
+                steps = [c == 'L' for c in line]
+            elif line == '':
+                pass
+            else:
+                cur, nxt = line.split(' = ')
+                l, r = nxt.strip('()').split(', ')
+                nodes[cur] = Node(cur, l, r)
+
+    transforms: dict[str, str] = {}
+    for node in nodes.keys():
+        transforms[node] = execute_steps(nodes[node], steps, nodes=nodes).name
+
+    end_cycles: dict[str, list[str]] = {}
+    for node in nodes.keys():
+        if node.endswith('Z'):
+            init_node = node
+            cycle = [node]
+            while True:
+                node = transforms[node]
+                if node == init_node:
+                    break
+                cycle.append(node)
+            end_cycles[node] = cycle
+
+    guarantees: dict[str, tuple[int, int]] = {}
+    for end_node in end_cycles.keys():
+        e = end_cycles[end_node]
+        for i in range(len(e)):
+            if guarantees.get(e[i], None) is None:
+                guarantees[e[i]] = len(e)
+
+    results = []
+    for node in nodes.keys():
+        if node.endswith('A'):
+            s = 0
+            while (x := guarantees.get(node, -1)) == -1:
+                node = transforms[node]
+                s += 1
+            results.append(x)
+
+    return len(steps) * reduce(lambda acc, x: acc * x, results)
 
 if __name__ == '__main__':
     print(part1('day8_input.txt'))
