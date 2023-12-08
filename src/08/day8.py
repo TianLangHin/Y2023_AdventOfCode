@@ -37,6 +37,13 @@ def part1(filename: str) -> int:
         s += 1
     return s * len(steps)
 
+def gcd(a, b):
+    if a < b:
+        a, b = b, a
+    if a % b == 0:
+        return b
+    return gcd(b, a % b)
+
 # Assumes that all starting nodes are in a cycle that contains an endpoint,
 # and that the end state is reached after an integer multiple of strides given.
 def part2(filename: str) -> int:
@@ -74,7 +81,7 @@ def part2(filename: str) -> int:
                 s += 1
             results.append(x)
 
-    return len(steps) * reduce(lambda acc, x: acc * x, results)
+    return len(steps) * reduce(lambda acc, x: acc * x // gcd(acc, x), results)
 
 if __name__ == '__main__':
     print(part1('day8_input.txt'))
