@@ -2,11 +2,9 @@ from functools import reduce
 from typing import Generator
 
 def get_input(filename: str) -> Generator[list[int], None, None]:
-    values: list[list[int]] = []
     with open(filename, 'rt') as f:
         for line in f:
-            values.append([int(x) for x in line.strip().split()])
-    return values
+            yield [int(x) for x in line.strip().split()]
 
 def get_layers(numbers: list[int], index: int) -> list[int]:
     layers = []
