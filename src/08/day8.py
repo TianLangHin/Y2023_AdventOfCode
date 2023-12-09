@@ -60,12 +60,10 @@ def overlap_cycle(arg1: Cycle, arg2: Cycle) -> Cycle:
     # Use extended Euclidean algorithm.
     old_r, r = a, b
     old_s, s = 1, 0
-    old_t, t = 0, 1
     while r:
         quotient, remainder = divmod(old_r, r)
         old_r, r = r, remainder
         old_s, s = s, old_s - quotient * s
-        old_t, t = t, old_t - quotient * t
     lcm = a * b // old_r
     if q < p:
         q += lcm
@@ -74,8 +72,7 @@ def overlap_cycle(arg1: Cycle, arg2: Cycle) -> Cycle:
     # due to synchronisation at offsetted positions.
     if mismatch != 0:
         raise Exception('no possibility of cycle match')
-    old_r, old_s, old_t = old_r * factor, old_s * factor, old_t * factor
-    old_s = old_s % b
+    old_s = (old_s * factor) % b
     if old_s <= 0:
         old_s += b
     return Cycle(p + a * old_s, lcm)
@@ -118,7 +115,7 @@ def part2(filename: str) -> int:
                 s += 1
             results.append(Cycle((s + x[1] - x[0]) % x[1], x[1]))
 
-    return len(steps) * reduce(lambda acc, x: overlap_cycle(acc, x), results)[0]
+    return len(steps) * reduce(lambda acc, x: overlap_cycle(acc, x), results).offset
 
 if __name__ == '__main__':
     print(part1('day8_input.txt'))
