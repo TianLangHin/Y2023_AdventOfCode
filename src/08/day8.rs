@@ -6,35 +6,29 @@ pub struct Node {
     pub right: String,
 }
 
-fn execute_steps<'a>(
-start_node: &'a Node, path: &'a Vec<bool>, nodes: &'a HashMap<String, Node>) -> &'a Node {
-    let mut node = start_node;
-    for branch in path {
-        node = (if *branch { nodes.get(&node.left) } else { nodes.get(&node.right) }).unwrap();
+fn execute_steps<'a>(start: &'a Node, path: &'a Vec<bool>, nodes: &'a HashMap<String, Node>) -> &'a Node {
+    let mut node = start;
+    for &branch in path {
+        node = (if branch { nodes.get(&node.left) } else { nodes.get(&node.right) }).unwrap();
     }
     return node;
 }
 
 fn parse_input(filename: &str) -> (Vec<bool>, HashMap<String, Node>) {
-    let mut nodes: HashMap<String, Node> = HashMap::new();
-
     let lines = std::fs::read_to_string(filename).expect("File not found");
     let mut line_iterator = lines.split('\n').map(|line| line.trim());
     let steps = line_iterator.next().unwrap().chars().map(|c| c == 'L').collect::<Vec<_>>();
     let _ = line_iterator.next();
-    for (cur, left, right) in line_iterator
-        .filter_map(|l| if l.len() > 0 { Some(l.split(" = ").collect::<Vec<_>>()) } else { None })
+    let nodes: HashMap<String, Node> = line_iterator
+        .filter_map(|l|
+            if l.len() > 0 { Some(l.split(" = ").collect::<Vec<_>>()) }
+            else { None })
         .map(|x| (x[0], x[1][1..x[1].len()-1].split(", ").collect::<Vec<_>>()))
-        .map(|(x, y)| (x, y[0], y[1])) {
-        nodes.insert(
-            cur.to_owned(),
-            Node {
-                name: cur.to_owned(),
-                left: left.to_owned(),
-                right: right.to_owned()
-            }
-        );
-    }
+        .map(|(x, y)| (x, y[0], y[1]))
+        .map(|(c, l, r)|
+            (c.to_owned(),
+            Node { name: c.to_owned(), left: l.to_owned(), right: r.to_owned() }))
+        .collect::<HashMap<String, Node>>();
     return (steps, nodes);
 }
 
