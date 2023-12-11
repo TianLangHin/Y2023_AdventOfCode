@@ -107,7 +107,7 @@ def part2(filename: str) -> int:
     while True:
         pipes[i] = MarkedPipe(True, pipes[i].p1, pipes[i].p2)
         next_pipe_offset = pipes[i].p1 if choice else pipes[i].p2
-        choice = pipes[i + next_pipe_offset].p1 + next_pipe_offset != 0:
+        choice = pipes[i + next_pipe_offset].p1 + next_pipe_offset != 0
         i += next_pipe_offset
         if i == s_index:
             break
