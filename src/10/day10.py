@@ -28,7 +28,6 @@ def to_offsets(character: str, *, row_length: int) -> (int, int):
             return (0, 0)
         case 'S':
             return (1, 1) # This is sentinel for 'S'
-    
 
 def part1(filename: str) -> int:
     pipes: list[Pipe] = []
@@ -108,10 +107,7 @@ def part2(filename: str) -> int:
     while True:
         pipes[i] = MarkedPipe(True, pipes[i].p1, pipes[i].p2)
         next_pipe_offset = pipes[i].p1 if choice else pipes[i].p2
-        if pipes[i + next_pipe_offset].p1 + next_pipe_offset == 0:
-            choice = False
-        else:
-            choice = True
+        choice = pipes[i + next_pipe_offset].p1 + next_pipe_offset != 0:
         i += next_pipe_offset
         if i == s_index:
             break
@@ -134,9 +130,8 @@ def part2(filename: str) -> int:
                         previous_angle = None
                     else:
                         previous_angle = current_angle
-            else:
-                if inside_loop:
-                    s += 1
+            elif inside_loop:
+                s += 1
     return s
 
 if __name__ == '__main__':
