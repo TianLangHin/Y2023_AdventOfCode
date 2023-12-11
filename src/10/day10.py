@@ -63,10 +63,7 @@ def part1(filename: str) -> int:
     choice = True
     while True:
         next_pipe_offset = pipes[i].p1 if choice else pipes[i].p2
-        if pipes[i + next_pipe_offset].p1 + next_pipe_offset == 0:
-            choice = False
-        else:
-            choice = True
+        choice = pipes[i + next_pipe_offset].p1 + next_pipe_offset != 0
         i += next_pipe_offset
         path_length += 1
         if i == s_index:
