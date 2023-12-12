@@ -3,7 +3,7 @@ MEMO: dict[int, int] = {}
 SPRINGS: str = ''
 POPULATIONS: list[int] = []
 
-def func(i: int, j: int) -> int:
+def solve(i: int, j: int) -> int:
     if j == len(POPULATIONS):
         if '#' not in SPRINGS[i:]:
             MEMO[i * ROW_LENGTH + j] = 1
@@ -17,14 +17,14 @@ def func(i: int, j: int) -> int:
         return cached_result
     this_skip = 0
     if SPRINGS[i] != '#':
-        this_skip = func(i+1, j)
+        this_skip = solve(i+1, j)
     this_match = 0
     if SPRINGS[i] != '.':
         if ((not any(k == '.' for k in SPRINGS[i:i+POPULATIONS[j]])) and
             i + POPULATIONS[j] <= len(SPRINGS) and
             not (i + POPULATIONS[j] < len(SPRINGS) and
             SPRINGS[i + POPULATIONS[j]] == '#')):
-            this_match = func(i + POPULATIONS[j] + 1, j + 1)
+            this_match = solve(i + POPULATIONS[j] + 1, j + 1)
     MEMO[i * ROW_LENGTH + j] = this_skip + this_match
     return this_skip + this_match
 
@@ -39,7 +39,7 @@ def part1(filename: str) -> int:
             POPULATIONS = populations
             MEMO.clear()
             ROW_LENGTH = len(line)
-            result = func(0, 0)
+            result = solve(0, 0)
             s += result
     return s
 
@@ -54,7 +54,7 @@ def part2(filename: str) -> int:
             POPULATIONS = populations * 5
             MEMO.clear()
             ROW_LENGTH = len(line)
-            result = func(0, 0)
+            result = solve(0, 0)
             s += result
     return s
 
