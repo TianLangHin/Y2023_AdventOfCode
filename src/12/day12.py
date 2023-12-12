@@ -15,27 +15,18 @@ def func(i: int, j: int) -> int:
     cached_result = MEMO.get(i * ROW_LENGTH + j, None)
     if cached_result is not None:
         return cached_result
-    match SPRINGS[i]:
-        case '.':
-            result = func(i+1, j)
-            MEMO[i * ROW_LENGTH + j] = result
-            return result
-        case '?':
-            possibilities = func(i+1, j)
-            substring = SPRINGS[i : i + POPULATIONS[j]]
-            if (not any(k == '.' for k in substring)) and len(substring) == POPULATIONS[j]:
-                if not (i + POPULATIONS[j] < len(SPRINGS) and SPRINGS[i + POPULATIONS[j]] == '#'):
-                    possibilities += func(i + POPULATIONS[j] + 1, j + 1)
-            MEMO[i * ROW_LENGTH + j] = possibilities
-            return possibilities
-        case '#':
-            possibilities = 0
-            substring = SPRINGS[i : i + POPULATIONS[j]]
-            if (not any(k == '.' for k in substring)) and len(substring) == POPULATIONS[j]:
-                if not (i + POPULATIONS[j] < len(SPRINGS) and SPRINGS[i + POPULATIONS[j]] == '#'):
-                    possibilities += func(i + POPULATIONS[j] + 1, j + 1)
-            MEMO[i * ROW_LENGTH + j] = possibilities
-            return possibilities
+    this_skip = 0
+    if SPRINGS[i] != '#':
+        this_skip = func(i+1, j)
+    this_match = 0
+    if SPRINGS[i] != '.':
+        if ((not any(k == '.' for k in SPRINGS[i:i+POPULATIONS[j]])) and
+            i + POPULATIONS[j] <= len(SPRINGS) and
+            not (i + POPULATIONS[j] < len(SPRINGS) and
+            SPRINGS[i + POPULATIONS[j]] == '#')):
+            this_match = func(i + POPULATIONS[j] + 1, j + 1)
+    MEMO[i * ROW_LENGTH + j] = this_skip + this_match
+    return this_skip + this_match
 
 def part1(filename: str) -> int:
     global SPRINGS, POPULATIONS, ROW_LENGTH
