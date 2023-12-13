@@ -1,12 +1,8 @@
 # Rock (#) is True
-def mirror_positions_col(grid: list[bool], row_length: int, col_length: int, p2: bool) -> list[int]:
-    col_keys = [
-        sum(grid[i + j * row_length] << j for j in range(col_length))
-        for i in range(row_length)
-    ]
+def mirror_positions(bits: list[bool], p2: bool) -> list[int]:
     results = []
     for i in range(2):
-        first, last = 0, len(col_keys) - 1
+        first, last = 0, len(bits) - 1
         while first != last:
             if not ((last - first) & 1):
                 first += 1
@@ -15,69 +11,27 @@ def mirror_positions_col(grid: list[bool], row_length: int, col_length: int, p2:
                 palindrome = True
                 count = 0
                 while f < l and palindrome:
-                    if p2:
-                        x = col_keys[f] ^ col_keys[l]
-                        if (x & (x - 1)) == 0 and col_keys[f] != col_keys[l]:
-                            palindrome = count == 0
-                            count += 1
-                        else:
-                            palindrome = col_keys[f] == col_keys[l]
+                    x = bits[f] ^ bits[l]
+                    if p2 and (x & (x - 1)) == 0 and bits[f] != bits[l]:
+                        palindrome = count == 0
+                        count += 1
                     else:
-                        palindrome = col_keys[f] == col_keys[l]
+                        palindrome = bits[f] == bits[l]
                     f += 1
                     l -= 1
                 if palindrome:
                     if i == 0:
                         results.append(1 + first + ((last - first) >> 1))
                     else:
-                        results.append(row_length - (1 + first + ((last - first) >> 1)))
+                        results.append(len(bits) - (1 + first + ((last - first) >> 1)))
                 first += 1
-        col_keys.reverse()
+        bits.reverse()
     if not p2 and not results:
         results.append(0)
     return results
 
-def mirror_positions_row(grid: list[bool], row_length: int, col_length: int, p2: bool) -> list[int]:
-    row_keys = [
-        sum(grid[i * row_length + j] << j for j in range(row_length))
-        for i in range(col_length)
-    ]
-    results = []
-    for i in range(2):
-        first, last = 0, len(row_keys) - 1
-        while first != last:
-            if not ((last - first) & 1):
-                first += 1
-            else:
-                f, l = first, last
-                palindrome = True
-                count = 0
-                while f < l and palindrome:
-                    if p2:
-                        x = row_keys[f] ^ row_keys[l]
-                        if (x & (x - 1)) == 0 and row_keys[f] != row_keys[l]:
-                            palindrome = count == 0
-                            count += 1
-                        else:
-                            palindrome = row_keys[f] == row_keys[l]
-                    else:
-                        palindrome = row_keys[f] == row_keys[l]
-                    f += 1
-                    l -= 1
-                if palindrome:
-                    if i == 0:
-                        results.append(1 + first + ((last - first) >> 1))
-                    else:
-                        results.append(col_length - (1 + first + ((last - first) >> 1)))
-                first += 1
-        row_keys.reverse()
-    if not p2 and not results:
-        results.append(0)
-    return [100*x for x in results]
-
 def part1(filename: str) -> int:
     s = 0
-    r = 0
     grid = []
     row, col = 0, 0
     with open(filename, 'rt') as f:
@@ -88,23 +42,36 @@ def part1(filename: str) -> int:
                 row = len(line)
                 col += 1
             else:
-                r = mirror_positions_col(grid, row, col, False)[0]
+                col_bits = [
+                    sum(grid[i + j * row] << j for j in range(col))
+                    for i in range(row)
+                ]
+                r = mirror_positions(col_bits, False)[0]
                 if r == 0:
-                    r = mirror_positions_row(grid, row, col, False)[0]
+                    row_bits = [
+                        sum(grid[i * row + j] << j for j in range(row))
+                        for i in range(col)
+                    ]
+                    r = 100 * mirror_positions(row_bits, False)[0]
                 row, col = 0, 0
                 grid = []
                 s += r
-    r = mirror_positions_col(grid, row, col, False)[0]
+    col_bits = [
+        sum(grid[i + j * row] << j for j in range(col))
+        for i in range(row)
+    ]
+    r = mirror_positions(col_bits, False)[0]
     if r == 0:
-        r = mirror_positions_row(grid, row, col, False)[0]
-    row, col = 0, 0
-    grid = []
+        row_bits = [
+            sum(grid[i * row + j] << j for j in range(row))
+            for i in range(col)
+        ]
+        r = 100 * mirror_positions(row_bits, False)[0]
     s += r
     return s
 
 def part2(filename: str) -> int:
     s = 0
-    r = 0
     grid = []
     row, col = 0, 0
     with open(filename, 'rt') as f:
@@ -115,22 +82,40 @@ def part2(filename: str) -> int:
                 row = len(line)
                 col += 1
             else:
-                p = mirror_positions_col(grid, row, col, False)[0]
+                col_bits = [
+                    sum(grid[i + j * row] << j for j in range(col))
+                    for i in range(row)
+                ]
+                row_bits = [
+                    sum(grid[i * row + j] << j for j in range(row))
+                    for i in range(col)
+                ]
+                p = mirror_positions(col_bits, False)[0]
                 if p == 0:
-                    p = mirror_positions_row(grid, row, col, False)[0]
-                t = mirror_positions_col(grid, row, col, True) + mirror_positions_row(grid, row, col, True)
+                    p = 100 * mirror_positions(row_bits, False)[0]
+                t = (mirror_positions(col_bits, True) +
+                     [100*x for x in mirror_positions(row_bits, True)])
                 row, col = 0, 0
                 grid = []
-                r = min(x for x in t if x != p)
-                s += r
-    p = mirror_positions_col(grid, row, col, False)[0]
+                if not t:
+                    t.append(0)
+                s += min(x for x in t if x != p)
+    col_bits = [
+        sum(grid[i + j * row] << j for j in range(col))
+        for i in range(row)
+    ]
+    row_bits = [
+        sum(grid[i * row + j] << j for j in range(row))
+        for i in range(col)
+    ]
+    p = mirror_positions(col_bits, False)[0]
     if p == 0:
-        p = mirror_positions_row(grid, row, col, False)[0]
-    t = mirror_positions_col(grid, row, col, True) + mirror_positions_row(grid, row, col, True)
-    r = min(x for x in t if x != p)
-    row, col = 0, 0
-    grid = []
-    s += r
+        p = 100 * mirror_positions(row_bits, False)[0]
+    t = (mirror_positions(col_bits, True) +
+         [100*x for x in mirror_positions(row_bits, True)])
+    if not t:
+        t.append(0)
+    s += min(x for x in t if x != p)
     return s
 
 if __name__ == '__main__':
