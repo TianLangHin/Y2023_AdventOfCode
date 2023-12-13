@@ -1,119 +1,79 @@
 # Rock (#) is True
-def mirror_positions_col(grid: list[bool], row_length: int, col_length: int, p2: bool) -> int | list[int]:
+def mirror_positions_col(grid: list[bool], row_length: int, col_length: int, p2: bool) -> list[int]:
     col_keys = [
         sum(grid[i + j * row_length] << j for j in range(col_length))
         for i in range(row_length)
     ]
     results = []
-    first, last = 0, len(col_keys) - 1
-    while first != last:
-        if not ((last - first) & 1):
-            first += 1
-        else:
-            f, l = first, last
-            palindrome = True
-            count = 0
-            while f < l and palindrome:
-                if p2:
-                    x = col_keys[f] ^ col_keys[l]
-                    if (x & (x - 1)) == 0 and col_keys[f] != col_keys[l]:
-                        palindrome = count == 0
-                        count += 1
+    for i in range(2):
+        first, last = 0, len(col_keys) - 1
+        while first != last:
+            if not ((last - first) & 1):
+                first += 1
+            else:
+                f, l = first, last
+                palindrome = True
+                count = 0
+                while f < l and palindrome:
+                    if p2:
+                        x = col_keys[f] ^ col_keys[l]
+                        if (x & (x - 1)) == 0 and col_keys[f] != col_keys[l]:
+                            palindrome = count == 0
+                            count += 1
+                        else:
+                            palindrome = col_keys[f] == col_keys[l]
                     else:
                         palindrome = col_keys[f] == col_keys[l]
-                else:
-                    palindrome = col_keys[f] == col_keys[l]
-                f += 1
-                l -= 1
-            if palindrome:
-                results.append(1 + first + ((last - first) >> 1))
-            first += 1
-    col_keys.reverse()
-    first, last = 0, len(col_keys) - 1
-    while first != last:
-        if not ((last - first) & 1):
-            first += 1
-        else:
-            f, l = first, last
-            palindrome = True
-            count = 0
-            while f < l and palindrome:
-                if p2:
-                    x = col_keys[f] ^ col_keys[l]
-                    if (x & (x - 1)) == 0 and col_keys[f] != col_keys[l]:
-                        palindrome = count == 0
-                        count += 1
+                    f += 1
+                    l -= 1
+                if palindrome:
+                    if i == 0:
+                        results.append(1 + first + ((last - first) >> 1))
                     else:
-                        palindrome = col_keys[f] == col_keys[l]
-                else:
-                    palindrome = col_keys[f] == col_keys[l]
-                f += 1
-                l -= 1
-            if palindrome:
-                results.append(row_length - (1 + first + ((last - first) >> 1)))
-            first += 1
-    if p2:
-        return results
-    else:
-        return 0 if not results else min(results)
+                        results.append(row_length - (1 + first + ((last - first) >> 1)))
+                first += 1
+        col_keys.reverse()
+    if not p2 and not results:
+        results.append(0)
+    return results
 
-def mirror_positions_row(grid: list[bool], row_length: int, col_length: int, p2: bool) -> int | list[int]:
+def mirror_positions_row(grid: list[bool], row_length: int, col_length: int, p2: bool) -> list[int]:
     row_keys = [
         sum(grid[i * row_length + j] << j for j in range(row_length))
         for i in range(col_length)
     ]
     results = []
-    first, last = 0, len(row_keys) - 1
-    while first != last:
-        if not ((last - first) & 1):
-            first += 1
-        else:
-            f, l = first, last
-            palindrome = True
-            count = 0
-            while f < l and palindrome:
-                if p2:
-                    x = row_keys[f] ^ row_keys[l]
-                    if (x & (x - 1)) == 0 and row_keys[f] != row_keys[l]:
-                        palindrome = count == 0
-                        count += 1
+    for i in range(2):
+        first, last = 0, len(row_keys) - 1
+        while first != last:
+            if not ((last - first) & 1):
+                first += 1
+            else:
+                f, l = first, last
+                palindrome = True
+                count = 0
+                while f < l and palindrome:
+                    if p2:
+                        x = row_keys[f] ^ row_keys[l]
+                        if (x & (x - 1)) == 0 and row_keys[f] != row_keys[l]:
+                            palindrome = count == 0
+                            count += 1
+                        else:
+                            palindrome = row_keys[f] == row_keys[l]
                     else:
                         palindrome = row_keys[f] == row_keys[l]
-                else:
-                    palindrome = row_keys[f] == row_keys[l]
-                f += 1
-                l -= 1
-            if palindrome:
-                results.append(1 + first + ((last - first) >> 1))
-            first += 1
-    row_keys.reverse()
-    first, last = 0, len(row_keys) - 1
-    while first != last:
-        if not ((last - first) & 1):
-            first += 1
-        else:
-            f, l = first, last
-            palindrome = True
-            count = 0
-            while f < l and palindrome:
-                if p2:
-                    x = row_keys[f] ^ row_keys[l]
-                    if (x & (x - 1)) == 0 and row_keys[f] != row_keys[l]:
-                        palindrome = count == 0
-                        count += 1
+                    f += 1
+                    l -= 1
+                if palindrome:
+                    if i == 0:
+                        results.append(1 + first + ((last - first) >> 1))
                     else:
-                        palindrome = row_keys[f] == row_keys[l]
-                else:
-                    palindrome = row_keys[f] == row_keys[l]
-                f += 1
-                l -= 1
-            if palindrome:
-                results.append(col_length - (1 + first + ((last - first) >> 1)))
-            first += 1
-    if p2:
-        return [100*x for x in results]
-    else:
-        return 0 if not results else 100 * min(results)
+                        results.append(col_length - (1 + first + ((last - first) >> 1)))
+                first += 1
+        row_keys.reverse()
+    if not p2 and not results:
+        results.append(0)
+    return [100*x for x in results]
 
 def part1(filename: str) -> int:
     s = 0
@@ -128,15 +88,15 @@ def part1(filename: str) -> int:
                 row = len(line)
                 col += 1
             else:
-                r = mirror_positions_col(grid, row, col, False)
+                r = mirror_positions_col(grid, row, col, False)[0]
                 if r == 0:
-                    r = mirror_positions_row(grid, row, col, False)
+                    r = mirror_positions_row(grid, row, col, False)[0]
                 row, col = 0, 0
                 grid = []
                 s += r
-    r = mirror_positions_col(grid, row, col, False)
+    r = mirror_positions_col(grid, row, col, False)[0]
     if r == 0:
-        r = mirror_positions_row(grid, row, col, False)
+        r = mirror_positions_row(grid, row, col, False)[0]
     row, col = 0, 0
     grid = []
     s += r
@@ -155,17 +115,17 @@ def part2(filename: str) -> int:
                 row = len(line)
                 col += 1
             else:
-                p = mirror_positions_col(grid, row, col, False)
+                p = mirror_positions_col(grid, row, col, False)[0]
                 if p == 0:
-                    p = mirror_positions_row(grid, row, col, False)
+                    p = mirror_positions_row(grid, row, col, False)[0]
                 t = mirror_positions_col(grid, row, col, True) + mirror_positions_row(grid, row, col, True)
                 row, col = 0, 0
                 grid = []
                 r = min(x for x in t if x != p)
                 s += r
-    p = mirror_positions_col(grid, row, col, False)
+    p = mirror_positions_col(grid, row, col, False)[0]
     if p == 0:
-        p = mirror_positions_row(grid, row, col, False)
+        p = mirror_positions_row(grid, row, col, False)[0]
     t = mirror_positions_col(grid, row, col, True) + mirror_positions_row(grid, row, col, True)
     r = min(x for x in t if x != p)
     row, col = 0, 0
