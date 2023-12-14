@@ -44,10 +44,10 @@ def one_cycle(grid: list[int], x_bound: int, y_bound: int):
                 case 2:
                     anchors[i] = j
 
-def grid_to_key(grid: list[int]):
+def grid_to_key(grid: list[int]) -> int:
     return sum(grid[i] << (i << 1) for i in range(len(grid)))
 
-def key_to_grid(key: int, total_length: int):
+def key_to_grid(key: int, total_length: int) -> list[int]:
     grid = []
     while key != 0:
         grid.append(key & 3)
@@ -60,18 +60,18 @@ def part1(filename: str) -> int:
     with open(filename, 'rt') as f:
         lines = [x.strip() for x in f.readlines()]
     n = len(lines[0])
-    last_anchor = [-1] * n
+    last_anchor = [0] * n
     column_weights = [(0, 0)] * n
     row_number = 0
     for line in lines:
         for i in range(n):
             match line[i]:
                 case '#':
-                    last_anchor[i] = row_number
+                    last_anchor[i] = row_number + 1
                 case 'O':
                     column_weights[i] = (
                         column_weights[i][0] + 1,
-                        column_weights[i][1] + last_anchor[i] + 1
+                        column_weights[i][1] + last_anchor[i]
                     )
                     last_anchor[i] += 1
         row_number += 1
