@@ -1,30 +1,26 @@
-from collections import namedtuple
-
-RockData = namedtuple('RockData', ['count', 'sum'])
-
 def one_cycle(grid: list[int], x_bound: int, y_bound: int):
     # north
-    anchors = [-1] * x_bound
+    anchors = [0] * x_bound
     for i in range(y_bound):
         for j in range(x_bound):
             match grid[i * x_bound + j]:
                 case 1:
                     grid[i * x_bound + j] = 0
-                    grid[(anchors[j] + 1) * x_bound + j] = 1
+                    grid[anchors[j] * x_bound + j] = 1
                     anchors[j] += 1
                 case 2:
-                    anchors[j] = i
+                    anchors[j] = i+1
     # west
-    anchors = [-1] * y_bound
+    anchors = [0] * y_bound
     for j in range(x_bound):
         for i in range(y_bound):
             match grid[i * x_bound + j]:
                 case 1:
                     grid[i * x_bound + j] = 0
-                    grid[i * x_bound + (anchors[i] + 1)] = 1
+                    grid[i * x_bound + anchors[i]] = 1
                     anchors[i] += 1
                 case 2:
-                    anchors[i] = j
+                    anchors[i] = j+1
     # south
     anchors = [x_bound] * x_bound
     for i in range(y_bound-1, -1, -1):
@@ -65,7 +61,7 @@ def part1(filename: str) -> int:
         lines = [x.strip() for x in f.readlines()]
     n = len(lines[0])
     last_anchor = [-1] * n
-    column_weights = [RockData(0, 0)] * n
+    column_weights = [(0, 0)] * n
     row_number = 0
     for line in lines:
         for i in range(n):
@@ -73,9 +69,9 @@ def part1(filename: str) -> int:
                 case '#':
                     last_anchor[i] = row_number
                 case 'O':
-                    column_weights[i] = RockData(
-                        column_weights[i].count + 1,
-                        column_weights[i].sum + last_anchor[i] + 1
+                    column_weights[i] = (
+                        column_weights[i][0] + 1,
+                        column_weights[i][1] + last_anchor[i] + 1
                     )
                     last_anchor[i] += 1
         row_number += 1
