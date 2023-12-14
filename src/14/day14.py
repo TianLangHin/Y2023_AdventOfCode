@@ -12,8 +12,8 @@ def one_cycle(grid: list[int], x_bound: int, y_bound: int):
                     anchors[j] = i+1
     # west
     anchors = [0] * y_bound
-    for j in range(x_bound):
-        for i in range(y_bound):
+    for i in range(y_bound):
+        for j in range(x_bound):
             match grid[i * x_bound + j]:
                 case 1:
                     grid[i * x_bound + j] = 0
