@@ -28,22 +28,21 @@ fn part2(filename: &str) -> usize {
     for (string, focal_length) in operations {
         let box_index = hash(&string);
         if focal_length == 0 {
-            for i in 0..boxes[box_index].len() {
-                if boxes[box_index][i].label == string {
-                    boxes[box_index].remove(i);
-                    break;
-                }
+            if let Some((i, _)) = boxes[box_index]
+                .iter()
+                .enumerate()
+                .find(|(_, x)| x.label == string)
+            {
+                boxes[box_index].remove(i);
             }
         } else {
-            let mut found = false;
-            for i in 0..boxes[box_index].len() {
-                if boxes[box_index][i].label == string {
-                    boxes[box_index][i] = Lens { label: string.to_string(), focal_length };
-                    found = true;
-                    break;
-                }
-            }
-            if !found {
+            if let Some((i, _)) = boxes[box_index]
+                .iter()
+                .enumerate()
+                .find(|(_, x)| x.label == string)
+            {
+                boxes[box_index][i] = Lens { label: string.to_string(), focal_length };
+            } else {
                 boxes[box_index].push(Lens { label: string.to_string(), focal_length });
             }
         }
