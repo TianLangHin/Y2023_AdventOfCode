@@ -1,4 +1,7 @@
+from collections import namedtuple
 from functools import reduce
+
+Lens = namedtuple('Lens', ['label', 'focal_length'])
 
 def hash(string: str) -> int:
     return reduce(lambda acc, e: ((acc + ord(e)) * 17) & 255, string, 0)
@@ -18,17 +21,26 @@ def part2(filename: str) -> int:
         else [(a, int(b)) for a, b in [string.split('=')]][0]
         for string in strings
     ]
-    boxes = [dict() for _ in range(256)]
+    boxes = [[] for _ in range(256)]
     for string, focal_length in operations:
-        index = hash(string)
+        box_index = hash(string)
         if focal_length == 0:
-            existing_lens = boxes[index].get(string, None)
-            if existing_lens is not None:
-                boxes[index].pop(string)
+            for i in range(len(boxes[box_index])):
+                if boxes[box_index][i].label == string:
+                    f = boxes[box_index][i].focal_length
+                    boxes[box_index].remove(Lens(string, f))
+                    break
         else:
-            boxes[index][string] = focal_length
+            found = False
+            for i in range(len(boxes[box_index])):
+                if boxes[box_index][i].label == string:
+                    boxes[box_index][i] = Lens(string, focal_length)
+                    found = True
+                    break
+            if not found:
+                boxes[box_index].append(Lens(string, focal_length))
     return sum(
-        (i+1) * sum((j+1) * f for j, (_, f) in enumerate(boxes[i].items()))
+        (i+1) * sum((j+1) * f for j, (_, f) in enumerate(boxes[i]))
         for i in range(256)
     )
 
