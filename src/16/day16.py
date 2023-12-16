@@ -1,5 +1,4 @@
 from collections import namedtuple
-from math import inf
 
 # index: int, direction: int, split: bool
 StepResult = namedtuple('StepResult', ['index', 'direction', 'split'])
