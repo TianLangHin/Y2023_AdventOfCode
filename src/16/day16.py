@@ -1,4 +1,5 @@
 from collections import namedtuple
+from typing import Generator
 
 # index: int, direction: int, split: bool
 StepResult = namedtuple('StepResult', ['index', 'direction', 'split'])
@@ -22,8 +23,6 @@ def step(index: int, grid: list[str], x_bound: int, direction: int) -> StepResul
     i = index
     for i in range(index + direction, grid_bound, direction):
         match grid[i]:
-            case '.':
-                pass
             case '|' if travelling_x:
                 return StepResult(i, x_bound, True)
             case '-' if not travelling_x:
@@ -76,8 +75,7 @@ def part1(filename: str) -> int:
             starting_direction = -x_bound
     return energy(0, starting_direction, grid, x_bound)
 
-def all_directions(index: int, x_bound: int, y_bound: int) -> list[int]:
-    directions = []
+def all_directions(index: int, x_bound: int, y_bound: int) -> Generator[int, None, None]:
     if index % x_bound == 0:
         yield 1
     elif index % x_bound == x_bound - 1:
@@ -86,7 +84,6 @@ def all_directions(index: int, x_bound: int, y_bound: int) -> list[int]:
         yield x_bound
     elif index // x_bound == y_bound - 1:
         yield -x_bound
-    return directions
 
 def part2(filename: str) -> int:
     with open(filename, 'rt') as f:
