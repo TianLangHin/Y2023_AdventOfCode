@@ -1,7 +1,6 @@
 from functools import reduce
-from typing import Generator
 
-def get_input(filename: str) -> Generator[list[int], None, None]:
+def get_input(filename: str) -> list[int]:
     with open(filename, 'rt') as f:
         for line in f:
             yield [int(x) for x in line.strip().split()]

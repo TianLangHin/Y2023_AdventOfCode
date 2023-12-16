@@ -1,5 +1,4 @@
 from collections import namedtuple
-from typing import Generator
 
 # index: int, direction: int, split: bool
 StepResult = namedtuple('StepResult', ['index', 'direction', 'split'])
@@ -72,7 +71,7 @@ def part1(filename: str) -> int:
             starting_direction = -x_bound
     return energy(0, starting_direction, grid, x_bound)
 
-def all_directions(index: int, x_bound: int, y_bound: int, mirror: str) -> Generator[int, None, None]:
+def all_directions(index: int, x_bound: int, y_bound: int, mirror: str) -> int:
     if index % x_bound == 0:
         match mirror:
             case '.' | '-':
