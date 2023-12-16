@@ -7,7 +7,6 @@ StepResult = namedtuple('StepResult', ['index', 'direction', 'split'])
 # direction is one of: 1, -1, x_bound, -x_bound
 def step(index: int, grid: list[str], x_bound: int, direction: int) -> StepResult:
     travelling_x = abs(direction) == 1
-
     if direction < 0:
         if travelling_x:
             grid_bound = (index // x_bound) * x_bound - 1
@@ -18,7 +17,6 @@ def step(index: int, grid: list[str], x_bound: int, direction: int) -> StepResul
             grid_bound = (index // x_bound + 1) * x_bound
         else:
             grid_bound = len(grid)
-
     i = index
     for i in range(index + direction, grid_bound, direction):
         match grid[i]:
@@ -74,15 +72,51 @@ def part1(filename: str) -> int:
             starting_direction = -x_bound
     return energy(0, starting_direction, grid, x_bound)
 
-def all_directions(index: int, x_bound: int, y_bound: int) -> Generator[int, None, None]:
+def all_directions(index: int, x_bound: int, y_bound: int, mirror: str) -> Generator[int, None, None]:
     if index % x_bound == 0:
-        yield 1
+        match mirror:
+            case '.' | '-':
+                yield 1
+            case '|':
+                yield -x_bound
+                yield x_bound
+            case '/':
+                yield -x_bound
+            case '\\':
+                yield x_bound
     elif index % x_bound == x_bound - 1:
-        yield -1
+        match mirror:
+            case '.' | '-':
+                yield -1
+            case '|':
+                yield -x_bound
+                yield x_bound
+            case '/':
+                yield x_bound
+            case '\\':
+                yield -x_bound
     if index // x_bound == 0:
-        yield x_bound
+        match mirror:
+            case '.' | '|':
+                yield x_bound
+            case '-':
+                yield -1
+                yield 1
+            case '/':
+                yield -1
+            case '\\':
+                yield 1
     elif index // x_bound == y_bound - 1:
-        yield -x_bound
+        match mirror:
+            case '.' | '|':
+                yield -x_bound
+            case '-':
+                yield -1
+                yield 1
+            case '/':
+                yield 1
+            case '\\':
+                yield -1
 
 def part2(filename: str) -> int:
     with open(filename, 'rt') as f:
@@ -97,7 +131,7 @@ def part2(filename: str) -> int:
     return max(
         energy(edge, direction, grid, x_bound)
         for edge in edges
-        for direction in all_directions(edge, x_bound, y_bound)
+        for direction in all_directions(edge, x_bound, y_bound, grid[edge])
     )
 
 if __name__ == '__main__':
