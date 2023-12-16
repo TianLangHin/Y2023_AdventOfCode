@@ -7,7 +7,6 @@ StepResult = namedtuple('StepResult', ['index', 'direction', 'split'])
 # direction is one of: 1, -1, x_bound, -x_bound
 def step(index: int, grid: list[str], x_bound: int, direction: int) -> StepResult:
     travelling_x = abs(direction) == 1
-    grid_bound = 0 if direction < 0 else index + x_bound if travelling_x else len(grid)
 
     if direction < 0:
         if travelling_x:
