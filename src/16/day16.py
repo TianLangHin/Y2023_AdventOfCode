@@ -39,10 +39,10 @@ def step(index: int, grid: list[str], x_bound: int, direction: int) -> StepResul
                 return StepResult(i, s * m, False)
     return StepResult(i, 0, False)
 
-def energy(index: int, starting_direction: int, grid: list[str], x_bound: int) -> int:
+def energy(start_index: int, starting_direction: int, grid: list[str], x_bound: int) -> int:
     traversed_points = set()
-    traversed_directions = {(0, starting_direction)}
-    paths = {(0, starting_direction)}
+    traversed_directions = {(start_index, starting_direction)}
+    paths = {(start_index, starting_direction)}
     while paths:
         new_paths = set()
         for index, direction in paths:
@@ -77,5 +77,34 @@ def part1(filename: str) -> int:
             starting_direction = -x_bound
     return energy(0, starting_direction, grid, x_bound)
 
+def all_directions(index: int, x_bound: int, y_bound: int) -> list[int]:
+    directions = []
+    if index % x_bound == 0:
+        yield 1
+    elif index % x_bound == x_bound - 1:
+        yield -1
+    if index // x_bound == 0:
+        yield x_bound
+    elif index // x_bound == y_bound - 1:
+        yield -x_bound
+    return directions
+
+def part2(filename: str) -> int:
+    with open(filename, 'rt') as f:
+        lines = [x.strip() for x in f.readlines()]
+    x_bound = len(lines[0])
+    y_bound = len(lines)
+    grid = sum([list(x) for x in lines], [])
+    edges = (set(range(0, x_bound)) |
+        set(range(0, len(grid), x_bound)) |
+        set(range(x_bound - 1, len(grid), x_bound)) |
+        set(range(len(grid) - x_bound, len(grid))))
+    return max(
+        energy(edge, direction, grid, x_bound)
+        for edge in edges
+        for direction in all_directions(edge, x_bound, y_bound)
+    )
+
 if __name__ == '__main__':
     print(part1('day16_input.txt'))
+    print(part2('day16_input.txt'))
