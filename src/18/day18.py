@@ -1,9 +1,4 @@
-def part1(filename: str) -> int:
-    instructions = []
-    with open(filename, 'rt') as f:
-        for line in f:
-            direction, magnitude, _ = line.strip().split()
-            instructions.append((direction, int(magnitude)))
+def calculate_fill(instructions: list[str, int]) -> int:
     x, y = 0, 0
     min_x, min_y = 0, 0
     for direction, length in instructions:
@@ -39,5 +34,32 @@ def part1(filename: str) -> int:
                 total_area -= x * length
     return perimeter + total_area + 1
 
+def part1(filename: str) -> int:
+    instructions = []
+    with open(filename, 'rt') as f:
+        for line in f:
+            direction, magnitude, _ = line.strip().split()
+            instructions.append((direction, int(magnitude)))
+    return calculate_fill(instructions)
+
+def part2(filename: str) -> int:
+    instructions = []
+    with open(filename, 'rt') as f:
+        for line in f:
+            _, _, hexadecimal = line.strip().split()
+            magnitude = int(hexadecimal[2:7], 16)
+            match hexadecimal[7]:
+                case '0':
+                    direction = 'R'
+                case '1':
+                    direction = 'D'
+                case '2':
+                    direction = 'L'
+                case '3':
+                    direction = 'U'
+            instructions.append((direction, magnitude))
+    return calculate_fill(instructions)
+
 if __name__ == '__main__':
     print(part1('day18_input.txt'))
+    print(part2('day18_input.txt'))
