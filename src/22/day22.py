@@ -102,15 +102,11 @@ def part2(filename: str) -> int:
     s = 0
     for i in range(len(bricks)):
         falling = {i}
-        k = 0
         while True:
             l = len(falling)
-            new_entries = [
-                j for j in range(len(bricks))
-                if all(x in falling for x in dependencies[j])
-                and len(dependencies[j]) > 0
-            ]
-            for e in new_entries: falling.add(e)
+            for j in range(len(bricks)):
+                if all(x in falling for x in dependencies[j]) and dependencies[j]:
+                    falling.add(j)
             if len(falling) == l:
                 break
         s += len(falling) - 1
