@@ -7,7 +7,7 @@ def pushed_height(
         index: int,
         dependencies: list[list[int]],
         bricks: list[Brick],
-        lowest_heights: dict[int, int]):
+        lowest_heights: dict[int, int]) -> int:
     if (result := lowest_heights.get(index, None)) is not None:
         return result
     if dependencies[index]:
