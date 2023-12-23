@@ -1,17 +1,19 @@
-from collections import namedtuple
-
-# index: int, steps: int
-Step = namedtuple('Step', ['index', 'steps'])
-
-# start: int, end: int
-Edge = namedtuple('Edge', ['start', 'end'])
-
-# next: int, weight: int
-Segment = namedtuple('Segment', ['next', 'weight'])
+def dfs(start: int,
+        end: int,
+        prev_weight: int,
+        path: list[int],
+        legal_moves: dict[int, list[tuple[int, int]]]) -> int:
+    if start == end:
+        return prev_weight
+    return max(
+        (dfs(move[0], end, prev_weight + move[1], path + [move[0]], legal_moves)
+        for move in legal_moves[start]
+        if move[0] not in path),
+        default=0)
 
 def step_forward(index: int,
                  next_square: int,
-                 next_steps: dict[int, set[int]]) -> Step:
+                 next_steps: dict[int, set[int]]) -> (int, int):
     step_count = 1
     possibilities = next_steps[next_square].copy()
     if index in possibilities:
@@ -24,21 +26,7 @@ def step_forward(index: int,
             possibilities.remove(idx)
         idx = next_square
         step_count += 1
-    return Step(idx, step_count)
-
-def dfs(start: int,
-        end: int,
-        prev_weight: int,
-        path: list[int],
-        legal_moves: dict[int, list[tuple[int, int]]]) -> int:
-    if start == end:
-        return prev_weight
-    return max(
-        (dfs(move[0], end, prev_weight + move[1], path + [move[0]], legal_moves)
-        for move in legal_moves[start]
-        if move[0] not in path),
-        default=0
-    )
+    return idx, step_count
 
 def part1(filename: str) -> int:
     with open(filename, 'rt') as f:
@@ -85,21 +73,24 @@ def part1(filename: str) -> int:
         new_searching = set()
         for index, next_square in searching:
             idx, step_count = step_forward(index, next_square, next_steps)
-            edges[Edge(index, idx)] = max(step_count, edges.get(Edge(index, idx), 0))
+            edges[(index, idx)] = max(step_count, edges.get((index, idx), 0))
             if idx != ending_index:
                 for nxt in next_steps[idx]:
                     if nxt != index:
                         new_searching.add((idx, nxt))
         searching = new_searching
     legal_moves = dict()
-    for edge, weight in edges.items():
-        legal_moves[edge.start] = legal_moves.get(edge.start, []) + [(edge.end, weight)]
+    for (start, end), weight in edges.items():
+        if start in legal_moves:
+            legal_moves[start].append((end, weight))
+        else:
+            legal_moves[start] = [(end, weight)]
     return dfs(starting_index, ending_index, 0, [starting_index], legal_moves)
 
 def step_until_junction(index: int,
                         next_square: int,
                         junctions: set[int],
-                        next_steps: dict[int, set[int]]) -> Step:
+                        next_steps: dict[int, set[int]]) -> (int, int):
     step_count = 1
     possibilities = next_steps[next_square].copy()
     if index in possibilities:
@@ -112,7 +103,7 @@ def step_until_junction(index: int,
             possibilities.remove(idx)
         idx = next_square
         step_count += 1
-    return Step(idx, step_count)
+    return idx, step_count
 
 def part2(filename: str) -> int:
     with open(filename, 'rt') as f:
@@ -175,18 +166,23 @@ def part2(filename: str) -> int:
         new_searching = set()
         for index, next_square in searching:
             idx, step_count = step_until_junction(index, next_square, junctions, next_steps)
-            edges[Edge(index, idx)] = max(step_count, edges.get(Edge(index, idx), 0))
+            edges[(index, idx)] = max(step_count, edges.get((index, idx), 0))
             if idx != ending_index:
                 for nxt in next_steps[idx]:
                     if nxt != index:
                         new_searching.add((idx, nxt))
         searching = new_searching
     legal_moves = dict()
-    for edge, weight in edges.items():
-        legal_moves[edge.start] = legal_moves.get(edge.start, []) + [Segment(edge.end, weight)]
-        legal_moves[edge.end] = legal_moves.get(edge.end, []) + [Segment(edge.start, weight)]
-    r = dfs(starting_index, ending_index, 0, [starting_index], legal_moves)
-    return r
+    for (start, end), weight in edges.items():
+        if start in legal_moves:
+            legal_moves[start].append((end, weight))
+        else:
+            legal_moves[start] = [(end, weight)]
+        if end in legal_moves:
+            legal_moves[end].append((start, weight))
+        else:
+            legal_moves[end] = [(start, weight)]
+    return dfs(starting_index, ending_index, 0, [starting_index], legal_moves)
 
 if __name__ == '__main__':
     print(part1('day23_input.txt'))

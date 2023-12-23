@@ -11,7 +11,7 @@ pub enum Tile {
 
 fn tile_eq(t1: &Tile, t2: &Tile) -> bool {
     match (&t1, &t2) {
-        (Tile::Empty, Tile::Empty)
+        (Tile::Empty,   Tile::Empty)
         | (Tile::Up,    Tile::Up)
         | (Tile::Left,  Tile::Left)
         | (Tile::Down,  Tile::Down)
@@ -183,9 +183,9 @@ fn part1(filename: &str) -> u64 {
 }
 
 fn step_until_junction(index: usize,
-                next_square: usize,
-                junctions: &BTreeSet<usize>,
-                next_steps: &HashMap<usize, BTreeSet<usize>>) -> (usize, u64) {
+                       next_square: usize,
+                       junctions: &BTreeSet<usize>,
+                       next_steps: &HashMap<usize, BTreeSet<usize>>) -> (usize, u64) {
     let mut next_sq = next_square;
     let mut step_count = 1u64;
     let mut possibilities: BTreeSet<usize> = next_steps
