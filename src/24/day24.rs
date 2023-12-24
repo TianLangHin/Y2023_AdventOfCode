@@ -41,7 +41,7 @@ fn part1(filename: &str) -> u64 {
                     let x = hailstones[i].0.0 + hailstones[i].1.0 * (t1 / k);
                     let y = hailstones[i].0.1 + hailstones[i].1.1 * (t1 / k);
                     if lower <= x && x <= higher && lower <= y && y <= higher {
-                    acc + 1
+                        acc + 1
                     } else {
                         acc
                     }
